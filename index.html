@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+
+    <title>Parse, don't validate</title>
+
+    <link rel="stylesheet" href="dist/reset.css" />
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/black.css" />
+
+    <!-- Theme used for syntax highlighted code -->
+    <link rel="stylesheet" href="dist/plugin/highlight/monokai.css" />
+    <style>
+      .reveal pre code.code-large {
+        font-size: 1.3em;
+      }
+      .reveal pre code.code-padded {
+        padding: 25px 15px;
+      }
+      .reveal pre code.typescript-error {
+        color: #ff6363;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h2 class="r-fit-text">Parse,</h2>
+          <h2 class="r-fit-text">don't validate</h2>
+        </section>
+
+        <section>
+          <p>Can we write a function that satisfies this type?</p>
+          <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            type Conjure = (x: number) => never;
+          </code></pre>
+        </section>
+
+        <section>
+          <p>What about this type?</p>
+          <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            <script type="text/template">
+            type FirstElement = <T>(xs: T[]) => T;
+            </script>
+          </code></pre>
+        </section>
+
+        <section>
+          <p>Let's try</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
+            <script type="text/template">
+            type FirstElement = <T>(xs: T[]) => T;
+
+            const firstElement: FirstElement = (xs) => {
+              return xs[0];
+            }
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <section>
+            <p>Turns out we can't*</p>
+            <pre><code data-trim data-noescape class="nohighlight typescript-error r-fit-text"><script type="text/template">
+    Type '<T>(xs: T[]) => T | undefined' is not assignable to type 'FirstElement'.
+              </script></code></pre>
+            <pre><code data-trim data-noescape class="nohighlight typescript-error r-fit-text"><script type="text/template">
+    Type 'T | undefined' is not assignable to type 'T'.
+      'T' could be instantiated with an arbitrary type which could be unrelated to 'T | undefined'.
+            </script></code></pre>
+          </section>
+
+          <section>
+            <p>* if we add this typescript config setting</p>
+            <pre><span>tsconfig.json</span><code data-trim data-noescape class="r-fit-text code-padded">
+              { "noUncheckedIndexedAccess": true }
+            </code>
+            </pre>
+          </section>
+        </section>
+
+        <section>
+          <p>But we can weaken our guarantee</p>
+          <div class="r-stack">
+            <pre
+              class="fragment fade-out"
+              data-fragment-index="0"
+            ><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            <script type="text/template">
+            type FirstElement = <T>(xs: T[]) => T            ;
+            </script>
+          </code></pre>
+            <pre
+              class="fragment current-visible"
+              data-fragment-index="0"
+            ><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            <script type="text/template">
+            type FirstElement = <T>(xs: T[]) => T | undefined;
+            </script>
+          </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <p>Weakened version</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-9|1-3,8-9">
+            <script type="text/template">
+            type FirstElement = <T>(xs: T[]) => T | undefined;
+
+            const firstElement: FirstElement = (xs) => {
+              if (xs.length === 0) {
+                return undefined;
+              }
+
+              return xs[0];
+            }
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>Problem solved, right?</p>
+          <p class="fragment">Well yes... but at a cost.</p>
+        </section>
+
+        <section>
+          <p>
+            The burden of checking <code>undefined</code><br />
+            now falls on the caller
+          </p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-8|2-3|4-6|7|10-11|12-14|16">
+            <script type="text/template">
+            const getConfigurationDirectories = () : string[] => {
+              const configDirsString = process.env.CONFIG_DIRS;
+              const configDirs = configDirsString.split(',');
+              if (configDirs.length === 0) {
+                throw new Error('CONFIG_DIRS cannot be empty');
+              }
+              return configDirs;
+            }
+
+            const configDirs = getConfigurationDirectories();
+            const cacheDir = firstElement(configDirs);
+            if (cacheDir === undefined) {
+              throw new Error('should never happen; already checked');
+            }
+
+            intializeCache(cacheDir);
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>This is pretty bad</p>
+          <ol>
+            <li class="fragment">It's just annoying</li>
+            <li class="fragment">Potential performance cost</li>
+            <li class="fragment">Worst of all, it's a bug waiting to happen</li>
+          </ol>
+        </section>
+
+        <section>
+          <p>What if someone decided to remove the original check</p>
+          <div class="r-stack">
+            <pre
+              class="fragment fade-out"
+              data-fragment-index="0"
+            ><code data-trim data-noescape class="language-typescript" data-line-numbers="4-6">
+            <script type="text/template">
+            const getConfigurationDirectories = () : string[] => {
+              const configDirsString = process.env.CONFIG_DIRS;
+              const configDirs = configDirsString.split(',');
+              if (configDirs.length === 0) {
+                throw new Error('CONFIG_DIRS cannot be empty');
+              }
+              return configDirs;
+            }
+
+            const configDirs = getConfigurationDirectories();
+            const cacheDir = firstElement(configDirs);
+            if (cacheDir === undefined) {
+              throw new Error('should never happen; already checked');
+            }
+
+            intializeCache(cacheDir);
+            </script>
+            </code></pre>
+            <pre
+              class="fragment"
+              data-fragment-index="0"
+            ><code data-trim data-noescape class="language-typescript" data-line-numbers>
+            <script type="text/template">
+            const getConfigurationDirectories = () : string[] => {
+              const configDirsString = process.env.CONFIG_DIRS;
+              const configDirs = configDirsString.split(',');
+
+
+
+              return configDirs;
+            }
+
+            const configDirs = getConfigurationDirectories();
+            const cacheDir = firstElement(configDirs);
+            if (cacheDir === undefined) {
+              throw new Error('should never happen; already checked');
+            }
+
+            intializeCache(cacheDir);
+            </script>
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <p>Can we do better?</p>
+          <div class="fragment">
+            <p>Here's the original type signature again</p>
+            <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            <script type="text/template">
+            type FirstElement = <T>(xs: T[]) => T;
+            </script>
+          </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <p>
+            What if, instead of weakening the guarantee on the return type, we
+            <strong><em>strengthen</em></strong> the type of the argument
+          </p>
+          <div class="fragment">
+            <pre><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
+            type NonEmptyArray<T> = [T, ...T[]];
+
+            type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
+            </script>
+          </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <p>
+            Then the original naive version of the code<br />
+            works just fine, no compile errors.
+          </p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
+            <script type="text/template">
+            type NonEmptyArray<T> = [T, ...T[]];
+
+            type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
+
+            const firstElement: FirstElement = (xs) => {
+              return xs[0];
+            }
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>The original usage site now no longer needs the redundant check</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1|4-8|12-14">
+            <script type="text/template">
+            const getConfigurationDirectories = () : NonEmptyArray<string> => {
+              const configDirsString = process.env.CONFIG_DIRS;
+              const configDirs = configDirsString.split(',');
+              const nonEmptyConfigDirs =
+                createNonEmptyArray(configDirs);
+              if (nonEmptyConfigDirs == null) {
+                throw new Error('CONFIG_DIRS cannot be empty');
+              }
+              return nonEmptyConfigDirs;
+            }
+
+            const configDirs = getConfigurationDirectories();
+            const cacheDir = firstElement(configDirs);
+            intializeCache(cacheDir);
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>With the <code>createNonEmptyArray</code> function having the type</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
+            <script type="text/template">
+            declare const createNonEmptyArray =
+              <T>(xs: T[]) => NonEmptyArray<T> | undefined;
+            </script>
+            </code></pre>
+        </section>
+      </div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+    <script src="dist/plugin/notes.js"></script>
+    <script src="dist/plugin/markdown.js"></script>
+    <script src="dist/plugin/highlight.js"></script>
+    <script>
+      // More info about initialization & config:
+      // - https://revealjs.com/initialization/
+      // - https://revealjs.com/config/
+      Reveal.initialize({
+        hash: true,
+
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+      });
+    </script>
+  </body>
+</html>
