@@ -42,6 +42,13 @@
       .reveal pre code.typescript-error {
         color: #ff6363;
       }
+      .fragment.point {
+        opacity: 0;
+      }
+      .fragment.point.visible {
+        opacity: 100%;
+        transform: scale(1.5);
+      }
     </style>
   </head>
   <body>
@@ -53,7 +60,14 @@
         </section>
 
         <section>
-          <p>About me</p>
+          <a href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/"
+            >Blog post "Parse, don't validate", from Alexis King</a
+          >
+          <img src="/images/blog.jpg" />
+        </section>
+
+        <section>
+          <h3>About me</h3>
           <div class="flex flex-row gap">
             <div class="profile-picture"></div>
             <ul>
@@ -66,10 +80,32 @@
         </section>
 
         <section>
-          <p>Can we write a function that satisfies this type?</p>
-          <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
-            type Conjure = (x: number) => never;
+          <h3>Agenda</h3>
+          <ol>
+            <li>The problem</li>
+            <li>Why it is a problem</li>
+            <li>Solutions</li>
+          </ol>
+        </section>
+
+        <section>
+          <section>
+            <p>Can we write a function that satisfies this type?</p>
+            <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            type Foo = (x: number) => never;
           </code></pre>
+            <p class="fragment">
+              No, we can't <small>1</small><br /><code>never</code> is a type with no values
+            </p>
+          </section>
+          <section>
+            <p>
+              <small>1</small>
+              <a href="https://www.typescriptlang.org/docs/handbook/2/functions.html#never"
+                >You can actually</a
+              >, but that involves throwing exceptions or infinite loops.
+            </p>
+          </section>
         </section>
 
         <section>
@@ -96,7 +132,7 @@
 
         <section>
           <section>
-            <p>Turns out we can't*</p>
+            <p>Turns out we can't <small>2</small></p>
             <pre><code data-trim data-noescape class="nohighlight typescript-error r-fit-text"><script type="text/template">
     Type '<T>(xs: T[]) => T | undefined' is not assignable to type 'FirstElement'.
               </script></code></pre>
@@ -107,7 +143,7 @@
           </section>
 
           <section>
-            <p>* if we add this typescript config setting</p>
+            <p><small>2</small> if we add this typescript config setting</p>
             <pre><span>tsconfig.json</span><code data-trim data-noescape class="r-fit-text code-padded">
               { "noUncheckedIndexedAccess": true }
             </code>
@@ -295,18 +331,20 @@
 
         <section>
           <p>The original usage site now no longer needs the redundant check</p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1|4-8|12-14">
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-2|5-10|14-16">
             <script type="text/template">
-            const getConfigurationDirectories = () : NonEmptyArray<string> => {
-              const configDirsString = process.env.CONFIG_DIRS;
-              const configDirs = configDirsString.split(',');
-              const nonEmptyConfigDirs =
-                createNonEmptyArray(configDirs);
-              if (nonEmptyConfigDirs == null) {
-                throw new Error('CONFIG_DIRS cannot be empty');
+            const getConfigurationDirectories = 
+              () : NonEmptyArray<string> => {
+                const configDirsString = process.env.CONFIG_DIRS;
+                const configDirs = configDirsString.split(',');
+                const nonEmptyConfigDirs =
+                  createNonEmptyArray(configDirs);
+
+                if (nonEmptyConfigDirs === undefined) {
+                  throw new Error('CONFIG_DIRS cannot be empty');
+                }
+                return nonEmptyConfigDirs;
               }
-              return nonEmptyConfigDirs;
-            }
 
             const configDirs = getConfigurationDirectories();
             const cacheDir = firstElement(configDirs);
@@ -316,13 +354,99 @@
         </section>
 
         <section>
-          <p>With the <code>createNonEmptyArray</code> function having the type</p>
+          <p>
+            With the <code>createNonEmptyArray</code> function <br />
+            having the type
+          </p>
           <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
             <script type="text/template">
             declare const createNonEmptyArray =
               <T>(xs: T[]) => NonEmptyArray<T> | undefined;
             </script>
             </code></pre>
+          <p class="fragment r-fit-text">The <code>undefined</code> is still there.</p>
+        </section>
+
+        <section>
+          <p>But it is handled earlier in the program.</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="8-10">
+            <script type="text/template">
+            const getConfigurationDirectories = 
+              () : NonEmptyArray<string> => {
+                const configDirsString = process.env.CONFIG_DIRS;
+                const configDirs = configDirsString.split(',');
+                const nonEmptyConfigDirs =
+                  createNonEmptyArray(configDirs);
+
+                if (nonEmptyConfigDirs === undefined) {
+                  throw new Error('CONFIG_DIRS cannot be empty');
+                }
+                return nonEmptyConfigDirs;
+              }
+
+            </script>
+            </code></pre>
+          <p class="fragment r-fit-text">Right alongside the input validation.</p>
+        </section>
+
+        <section>
+          <p>The fact that we return a <code>NonEmptyArray&lt;string&gt;</code></p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="2">
+            <script type="text/template">
+            const getConfigurationDirectories = 
+              () : NonEmptyArray<string> => {
+                const configDirsString = process.env.CONFIG_DIRS;
+                const configDirs = configDirsString.split(',');
+                const nonEmptyConfigDirs =
+                  createNonEmptyArray(configDirs);
+
+                if (nonEmptyConfigDirs === undefined) {
+                  throw new Error('CONFIG_DIRS cannot be empty');
+                }
+                return nonEmptyConfigDirs;
+              }
+
+            </script>
+            </code></pre>
+          <p class="fragment">embeds the proof that the array is not empty</p>
+          <h4 class="fragment custom point">in the type system</h4>
+        </section>
+
+        <section>
+          <p>The problems of the previous section have been eliminated</p>
+          <ul>
+            <li>No more redundant checks</li>
+            <li>
+              Removing the check that the array is non-empty, requires modifying the return type,
+              leading to compile errors at all call sites.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <p>
+            We can even recover the original behavior of <code>firstElement</code> through
+            composition
+          </p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-3|5|7|8|9-11|13">
+            <script type="text/template">
+            type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
+
+            declare const firstElement: FirstElement;
+
+            type FirstElementOG = <T>(xs: T[]) => T | undefined;
+
+            const firstElementOG: FirstElementOG = (xs) => {
+              const nonEmptyXs = createNonEmptyArray(xs);
+              if (nonEmptyXs === undefined) {
+                return undefined;
+              }
+
+              return firstElement(nonEmptyXs);
+            }
+            </script>
+            </code></pre>
+          <p class="fragment">Note, the inverse is not true</p>
         </section>
       </div>
     </div>
