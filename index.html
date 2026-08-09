@@ -16,6 +16,23 @@
     <!-- Theme used for syntax highlighted code -->
     <link rel="stylesheet" href="dist/plugin/highlight/monokai.css" />
     <style>
+      .flex {
+        display: flex;
+      }
+      .flex.flex-row {
+        flex-direction: row;
+      }
+      .gap {
+        gap: 1em;
+      }
+      .profile-picture {
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background-image: url('/images/portrait.jpg');
+        background-position: 0px -22px;
+        background-size: cover;
+      }
       .reveal pre code.code-large {
         font-size: 1.3em;
       }
@@ -33,6 +50,19 @@
         <section>
           <h2 class="r-fit-text">Parse,</h2>
           <h2 class="r-fit-text">don't validate</h2>
+        </section>
+
+        <section>
+          <p>About me</p>
+          <div class="flex flex-row gap">
+            <div class="profile-picture"></div>
+            <ul>
+              <li>Backend: 2012 - 2015</li>
+              <li>Frontend: 2015 - 2021</li>
+              <li>Backend: 2021 - present</li>
+              <li>Passionate FP advocate</li>
+            </ul>
+          </div>
         </section>
 
         <section>
