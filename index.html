@@ -42,8 +42,11 @@
       .reveal pre code.typescript-error {
         color: #ff6363;
       }
-      .fragment.point {
-        opacity: 0;
+      .reveal blockquote.padded {
+        padding: 20px 25px;
+      }
+      .text-justify {
+        text-align: justify;
       }
       .fragment.point.visible {
         opacity: 100%;
@@ -447,6 +450,93 @@
             </script>
             </code></pre>
           <p class="fragment">Note, the inverse is not true</p>
+        </section>
+
+        <section>
+          <p>All good but, where's the parsing?</p>
+        </section>
+
+        <section>
+          <p>Validation vs. Parsing</p>
+          <p class="fragment">How is information preserved?</p>
+        </section>
+
+        <section>
+          <p>Consider the following pair of functions</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-5|7-12">
+            <script type="text/template">
+            const validateNonEmpty = <T>(xs: T[]) : void => {
+              if (xs.length === 0) {
+                throw new Error('array cannot be empty');
+              }
+            }
+
+            const parseNonEmpty = <T>(xs: T[]) : NonEmptyArray<T> => {
+              if (xs.length === 0) {
+                throw new Error('array cannot be empty');
+              }
+              return xs as NonEmptyArray<T>;
+            }
+            </script>
+            </code></pre>
+          <p class="fragment">The difference lies entirely in the return type</p>
+        </section>
+
+        <section>
+          <p>What is a parser?</p>
+          <p class="fragment">less-structured input -> more-structured output</p>
+          <p class="fragment">Which is an incredibly powerful tool</p>
+        </section>
+
+        <section>
+          <p>
+            They allow discharging checks on input up-front,<br />
+            at the boundary
+          </p>
+          <p class="fragment">
+            Once these checks have been passed,<br />
+            they <strong>never</strong> need to happen again.
+          </p>
+        </section>
+
+        <section>
+          <p>Doing these checks up-front can prevent a whole class of bugs</p>
+          <p>Some of which might even be security vulnerabilities</p>
+        </section>
+
+        <section>
+          <p>One drawback:</p>
+          <p>there can be a lot of distance between parsing and processing</p>
+        </section>
+
+        <section>
+          <h3>The danger of validation</h3>
+          <p>Is it really that bad?</p>
+        </section>
+
+        <section data-auto-animate>
+          <p>Ad-hoc validation leads to <em>shotgun parsing</em></p>
+        </section>
+
+        <section data-auto-animate>
+          <p>Ad-hoc validation leads to shotgun parsing</p>
+
+          <blockquote class="padded text-justify">
+            Shotgun parsing is a programming antipattern whereby parsing and input-validating code
+            is mixed with and spread across processing code—throwing a cloud of checks at the input,
+            and hoping, without any systematic justification, that one or another would catch all
+            the “bad” cases.
+          </blockquote>
+        </section>
+
+        <section data-markdown>
+          <textarea data-template>
+          Ad-hoc validation leads to shotgun parsing
+
+          > Shotgun parsing is a programming antipattern whereby parsing and input-validating code is
+          mixed with and spread across processing code—throwing a cloud of checks at the input, and
+          hoping, without any systematic justification, that one or another would catch all the
+          “bad” cases.</textarea>
         </section>
       </div>
     </div>
