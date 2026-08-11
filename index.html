@@ -519,7 +519,7 @@
         </section>
 
         <section data-auto-animate>
-          <p>Ad-hoc validation leads to shotgun parsing</p>
+          <p>Ad-hoc validation leads to <em>shotgun parsing</em></p>
 
           <blockquote class="padded text-justify">
             Shotgun parsing is a programming antipattern whereby parsing and input-validating code
@@ -529,14 +529,148 @@
           </blockquote>
         </section>
 
-        <section data-markdown>
-          <textarea data-template>
-          Ad-hoc validation leads to shotgun parsing
+        <section>
+          <ul>
+            <li>Late-discovered input errors lead to parts of it being processed</li>
+            <li>Program state becomes difficult to accurately predict</li>
+          </ul>
+        </section>
 
-          > Shotgun parsing is a programming antipattern whereby parsing and input-validating code is
-          mixed with and spread across processing code—throwing a cloud of checks at the input, and
-          hoping, without any systematic justification, that one or another would catch all the
-          “bad” cases.</textarea>
+        <section>
+          <p>How is this related to validation?</p>
+        </section>
+
+        <section>
+          <p>
+            If I just do all my validation up front, surely I will mitigate the risk of shotgun
+            parsing
+          </p>
+          <p class="fragment">Right?</p>
+        </section>
+
+        <section>
+          <section>
+            <p>
+              Validation based approaches make it extremely difficult to determine if everything was
+              actually validated up front
+            </p>
+            <p class="fragment">
+              You must assume throwing exceptions anywhere is regularly necessary
+            </p>
+            <p class="fragment">Exceptions are not tracked by the type system <small>3</small></p>
+          </section>
+          <section>
+            <p><small>3</small> Java has checked exceptions which are actually tracked</p>
+            <div class="fragment">
+              <p>Opinions are plentiful and divided</p>
+              <p>
+                see also:
+                <a href="https://www.artima.com/articles/the-trouble-with-checked-exceptions"
+                  >The trouble with checked exceptions</a
+                >
+              </p>
+            </div>
+          </section>
+        </section>
+
+        <section>
+          <p>Parsing avoids this problem</p>
+          <p class="fragment">by splitting the program into 2 phases</p>
+          <ul>
+            <li class="fragment">Parsing</li>
+            <li class="fragment">Execution</li>
+          </ul>
+        </section>
+
+        <section data-auto-animate>
+          <h3>How?</h3>
+        </section>
+
+        <section data-auto-animate>
+          <h3>How?</h3>
+          <p class="r-fit-text">Focus on the datatypes</p>
+        </section>
+
+        <section>
+          <p>Consider a function that accepts an array of key value tuples</p>
+          <p class="fragment">But you aren't sure what to do when encountering duplicate keys</p>
+          <pre
+            class="fragment"
+          ><code data-trim data-noescape class="language-typescript" data-line-numbers="1-5|7-12">
+            <script type="text/template">
+            type CheckNoDuplicateKeys =
+              <Key, Value>(pairs: [Key, Value][]) => void;
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>This is fragile</p>
+          <ul>
+            <li>It can be omitted / forgotten</li>
+            <li>The code that consumes the array would typecheck regardless</li>
+          </ul>
+        </section>
+
+        <section>
+          <p>What would be a better solution?</p>
+          <p class="fragment">
+            Have the function accept a <code>Map&lt;Key, Value&gt;</code> instead
+          </p>
+          <pre
+            class="fragment"
+          ><code data-trim data-noescape class="language-typescript" data-line-numbers="1-5|7-12">
+            <script type="text/template">
+            type CheckNoDuplicateKeys =
+              <Key, Value>(pairs: [Key, Value][]) => Map<Key, Value>;
+            </script>
+            </code></pre>
+          <aside class="notes">
+            Keep changing the type from Array to Map all the way up the call chain, eventually
+            you'll reach the location the value is created or you'll find a place where duplicates
+            actually ought to be allowed.
+          </aside>
+        </section>
+
+        <section>
+          <p>Now the check cannot be omitted</p>
+          <p>Its result is needed for the program to proceed</p>
+        </section>
+
+        <section>
+          <p>Two simple ideas highlighted</p>
+          <ol>
+            <li class="fragment">use a data structure that makes illegal states unrepresentable</li>
+            <li class="fragment">
+              Push the burden of proof upward as far as possible, but no further
+            </li>
+          </ol>
+        </section>
+
+        <section>
+          <p>Example</p>
+          <pre><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
+            type TimeRange = {
+              start: Date;
+              end: Date;
+            };
+            </script>
+            </code></pre>
+          <p class="fragment">
+            Now we want this time range to only contain "positive" values, i.e. start &lt; end
+          </p>
+        </section>
+
+        <section>
+          <pre><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
+            type TimeRange = {
+              start: Date;
+              duration: uint; // TODO: lolwat typescript
+            };
+            </script>
+            </code></pre>
         </section>
       </div>
     </div>
