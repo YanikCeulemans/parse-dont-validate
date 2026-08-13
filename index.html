@@ -648,30 +648,48 @@
         </section>
 
         <section>
-          <p>Example</p>
-          <pre><code data-trim data-noescape class="language-typescript">
-            <script type="text/template">
-            type TimeRange = {
-              start: Date;
-              end: Date;
-            };
-            </script>
-            </code></pre>
-          <p class="fragment">
-            Now we want this time range to only contain "positive" values, i.e. start &lt; end
-          </p>
+          <section>
+            <p>Additional advice</p>
+            <ol>
+              <li class="fragment">
+                Let your datatypes inform your code, don't let your code control your datatypes
+              </li>
+              <li class="fragment">
+                Treat functions that return <code>void</code> with deep suspicion
+              </li>
+              <li class="fragment">Don't be afraid to parse data in multiple passes</li>
+              <li class="fragment">
+                Avoid denormalized representations of data, <em>especially</em> if it's mutable
+              </li>
+              <li class="fragment">
+                Use abstract datatypes to make validators "look like" parsers <small>4</small>
+              </li>
+            </ol>
+          </section>
+          <section>
+            <small>4</small> In typescript, this is harder to do as it uses structural typing.
+          </section>
         </section>
 
         <section>
-          <pre><code data-trim data-noescape class="language-typescript">
-            <script type="text/template">
-            type TimeRange = {
-              start: Date;
-              duration: uint; // TODO: lolwat typescript
-            };
-            </script>
-            </code></pre>
+          <p>Write total functions</p>
+          <p class="fragment">This advice isn't new</p>
+          <p class="fragment">And it isn't always easy to do</p>
         </section>
+
+        <section>
+          <h3>Further reading</h3>
+          <ul>
+            <li>
+              <a href="https://www.parsonsmatt.org/2017/10/11/type_safety_back_and_forth.html"
+                >Type Safety Back and Forth</a
+              >
+            </li>
+            <li><a href="https://kataskeue.com/gdp.pdf">Ghosts of Departed Proofs</a></li>
+          </ul>
+        </section>
+
+        <section><h3 class="r-fit-text">Thanks</h3></section>
       </div>
     </div>
 
