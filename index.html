@@ -48,6 +48,9 @@
       .text-justify {
         text-align: justify;
       }
+      .fragment.point {
+        opacity: 0;
+      }
       .fragment.point.visible {
         opacity: 100%;
         transform: scale(1.5);
@@ -80,15 +83,6 @@
               <li>Passionate FP advocate</li>
             </ul>
           </div>
-        </section>
-
-        <section>
-          <h3>Agenda</h3>
-          <ol>
-            <li>The problem</li>
-            <li>Why it is a problem</li>
-            <li>Solutions</li>
-          </ol>
         </section>
 
         <section>
@@ -203,7 +197,7 @@
             The burden of checking <code>undefined</code><br />
             now falls on the caller
           </p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-8|2-3|4-6|7|10-11|12-14|16">
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1|2-3|4-6|7|10-11|12-14|16">
             <script type="text/template">
             const getConfigurationDirectories = () : string[] => {
               const configDirsString = process.env.CONFIG_DIRS;
@@ -284,6 +278,7 @@
             </script>
             </code></pre>
           </div>
+          <p class="fragment">We just got the "should never happen" error thrown</p>
         </section>
 
         <section>
@@ -334,8 +329,11 @@
 
         <section>
           <p>The original usage site now no longer needs the redundant check</p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-2|5-10|14-16">
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-2|4-5|8-13|17-19">
             <script type="text/template">
+            declare const createNonEmptyArray =
+              <T>(xs: T[]) => NonEmptyArray<T> | undefined;
+
             const getConfigurationDirectories = 
               () : NonEmptyArray<string> => {
                 const configDirsString = process.env.CONFIG_DIRS;
@@ -357,22 +355,10 @@
         </section>
 
         <section>
-          <p>
-            With the <code>createNonEmptyArray</code> function <br />
-            having the type
-          </p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
-            <script type="text/template">
-            declare const createNonEmptyArray =
-              <T>(xs: T[]) => NonEmptyArray<T> | undefined;
-            </script>
-            </code></pre>
-          <p class="fragment r-fit-text">The <code>undefined</code> is still there.</p>
-        </section>
-
-        <section>
-          <p>But it is handled earlier in the program.</p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="8-10">
+          <p class="r-fit-text">The <code>undefined</code> is still there.</p>
+          <div class="fragment">
+            <p>But it is handled earlier in the program.</p>
+            <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="8-10">
             <script type="text/template">
             const getConfigurationDirectories = 
               () : NonEmptyArray<string> => {
@@ -389,6 +375,7 @@
 
             </script>
             </code></pre>
+          </div>
           <p class="fragment r-fit-text">Right alongside the input validation.</p>
         </section>
 
@@ -431,7 +418,7 @@
             We can even recover the original behavior of <code>firstElement</code> through
             composition
           </p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-3|5|7|8|9-11|13">
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-3|5|8|9-11|13">
             <script type="text/template">
             type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
 
@@ -449,11 +436,11 @@
             }
             </script>
             </code></pre>
-          <p class="fragment">Note, the inverse is not true</p>
+          <p class="fragment">Note: the inverse is not true</p>
         </section>
 
         <section>
-          <p>All good but, where's the parsing?</p>
+          <p>All good but... where's the parsing?</p>
         </section>
 
         <section>
@@ -484,7 +471,7 @@
 
         <section>
           <p>What is a parser?</p>
-          <p class="fragment">less-structured input -> more-structured output</p>
+          <p class="fragment">less-structured input &#8594; more-structured output</p>
           <p class="fragment">Which is an incredibly powerful tool</p>
         </section>
 
@@ -506,7 +493,7 @@
 
         <section>
           <p>One drawback:</p>
-          <p>there can be a lot of distance between parsing and processing</p>
+          <p>there can be a lot of distance between parsing and processing code</p>
         </section>
 
         <section>
@@ -593,22 +580,31 @@
 
         <section>
           <p>Consider a function that accepts an array of key value tuples</p>
+          <pre><code data-trim data-noescape class="language-typescript r-fit-text">
+            <script type="text/template">
+            type Bar = (pairs: [string, number][]) => number;
+            </script>
+            </code></pre>
           <p class="fragment">But you aren't sure what to do when encountering duplicate keys</p>
-          <pre
-            class="fragment"
-          ><code data-trim data-noescape class="language-typescript" data-line-numbers="1-5|7-12">
+          <div class="fragment">
+            <p>So you create:</p>
+            <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
             type CheckNoDuplicateKeys =
               <Key, Value>(pairs: [Key, Value][]) => void;
             </script>
             </code></pre>
+          </div>
         </section>
 
         <section>
           <p>This is fragile</p>
           <ul>
             <li>It can be omitted / forgotten</li>
-            <li>The code that consumes the array would typecheck regardless</li>
+            <li>
+              The code that consumes the array would typecheck regardless if the check was added or
+              not
+            </li>
           </ul>
         </section>
 
