@@ -11,10 +11,26 @@
 
     <link rel="stylesheet" href="dist/reset.css" />
     <link rel="stylesheet" href="dist/reveal.css" />
-    <link rel="stylesheet" href="dist/theme/black.css" />
+    <link id="theme" rel="stylesheet" href="dist/theme/white.css" />
 
     <!-- Theme used for syntax highlighted code -->
-    <link rel="stylesheet" href="dist/plugin/highlight/monokai.css" />
+    <link id="code-theme" rel="stylesheet" href="dist/plugin/highlight/atom-one-light.css" />
+    <script>
+      const toggledThemes = {
+        'white.css': ['black.css', 'atom-one-dark.css'],
+        'black.css': ['white.css', 'atom-one-light.css'],
+      };
+      const themeLink = document.getElementById('theme');
+      const codeThemeLink = document.getElementById('code-theme');
+      window.toggleLight = () => {
+        const currentTheme = themeLink.href.split('/').slice(-1)[0];
+        const currentCodeTheme = codeThemeLink.href.split('/').slice(-1)[0];
+        const [toggledTheme, toggledCodeTheme] = toggledThemes[currentTheme ?? 'black.css'];
+
+        themeLink.href = themeLink.href.replace(currentTheme, toggledTheme);
+        codeThemeLink.href = codeThemeLink.href.replace(currentCodeTheme, toggledCodeTheme);
+      };
+    </script>
     <style>
       .flex {
         display: flex;
@@ -55,9 +71,20 @@
         opacity: 100%;
         transform: scale(1.5);
       }
+      .light-switch {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 999;
+        &:hover {
+          opacity: 100;
+        }
+      }
     </style>
   </head>
   <body>
+    <button class="light-switch" onclick="toggleLight()">switch</button>
     <div class="reveal">
       <div class="slides">
         <section>
