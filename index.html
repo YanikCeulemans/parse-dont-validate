@@ -582,7 +582,7 @@
           <p>Consider a function that accepts an array of key value tuples</p>
           <pre><code data-trim data-noescape class="language-typescript r-fit-text">
             <script type="text/template">
-            type Bar = (pairs: [string, number][]) => number;
+            type Bar = (pairs: [Date, number][]) => number;
             </script>
             </code></pre>
           <p class="fragment">But you aren't sure what to do when encountering duplicate keys</p>
@@ -613,9 +613,14 @@
           <p class="fragment">
             Have the function accept a <code>Map&lt;Key, Value&gt;</code> instead
           </p>
-          <pre
-            class="fragment"
-          ><code data-trim data-noescape class="language-typescript" data-line-numbers="1-5|7-12">
+          <pre class="fragment"><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
+            type Bar = (pairs: [Date, number][]) => number;
+
+            type BetterBar = (pairs: Map<Date, number>) => number;
+            </script>
+            </code></pre>
+          <pre class="fragment"><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
             type CheckNoDuplicateKeys =
               <Key, Value>(pairs: [Key, Value][]) => Map<Key, Value>;
@@ -636,11 +641,49 @@
         <section>
           <p>Two simple ideas highlighted</p>
           <ol>
-            <li class="fragment">use a data structure that makes illegal states unrepresentable</li>
+            <li class="fragment">
+              Use a data structure that makes illegal states unrepresentable, use union types
+              judiciously
+            </li>
             <li class="fragment">
               Push the burden of proof upward as far as possible, but no further
             </li>
           </ol>
+        </section>
+
+        <section>
+          <p>Payment methods</p>
+          <pre><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
+            type Payment = {
+              cash: boolean;
+              creditCard?: string;
+              debitCard?: string;
+            }
+            </script>
+            </code></pre>
+          <p class="fragment">But then, this is a legal value of that type</p>
+          <pre class="fragment"><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
+            const payment: Payment = {
+              cash: true,
+              creditCard: '4111 1111 1111 1111',
+              debitCard: '2223 5204 4356 0010',
+            }
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>Can we do better?</p>
+          <pre class="fragment"><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
+            type Payment =
+              | { kind: 'cash' }
+              | { kind: 'creditCard', creditCardNumber: string }
+              | { kind: 'debitCard', debitCardNumber: string }
+            </script>
+            </code></pre>
         </section>
 
         <section>
@@ -663,7 +706,8 @@
             </ol>
           </section>
           <section>
-            <small>4</small> In typescript, this is harder to do as it uses structural typing.
+            <small>4</small> In typescript, this is harder to do considering it uses structural
+            typing.
           </section>
         </section>
 
