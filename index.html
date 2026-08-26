@@ -32,14 +32,21 @@
       };
     </script>
     <style>
-      .flex {
+      .flex,
+      .reveal .flex {
         display: flex;
       }
       .flex.flex-row {
         flex-direction: row;
       }
+      .flex.flex-column {
+        flex-direction: column;
+      }
       .gap {
         gap: 1em;
+      }
+      .align-end {
+        align-self: end;
       }
       .profile-picture {
         width: 300px;
@@ -63,6 +70,9 @@
       }
       .text-justify {
         text-align: justify;
+      }
+      .strikethrough {
+        text-decoration: line-through;
       }
       .fragment.point {
         opacity: 0;
@@ -345,7 +355,7 @@
         <section>
           <p>Can we do better?</p>
           <div class="fragment">
-            <p>Here's the original type signature again</p>
+            <p>Here's the original type signature again:</p>
             <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             <script type="text/template">
             type FirstElement = <T>(xs: T[]) => T;
@@ -472,14 +482,27 @@
         </section>
 
         <section>
-          <p>The problems of the previous section have been eliminated</p>
-          <ul>
-            <li>No more redundant checks</li>
+          <p>The identified problems have been eliminated</p>
+          <ol>
             <li>
-              Removing the check that the array is non-empty, requires modifying the return type,
-              leading to compile errors at all call sites.
+              <span class="strikethrough">It's just annoying</span>
+              <ul>
+                <li>No more redundant checks</li>
+              </ul>
             </li>
-          </ul>
+            <li>
+              <span class="strikethrough">Potential performance cost</span>
+              <ul>
+                <li>No more redundant checks</li>
+              </ul>
+            </li>
+            <li>
+              <span class="strikethrough">Worst of all, it's a bug waiting to happen</span>
+              <ul>
+                <li>Removing the original check, leads to compile errors</li>
+              </ul>
+            </li>
+          </ol>
         </section>
 
         <section>
@@ -487,11 +510,9 @@
             We can even recover the original behavior of <code>firstElement</code> through
             composition
           </p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-3|5|8|9-11|13">
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1|3|6|7-9|11">
             <script type="text/template">
             type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
-
-            declare const firstElement: FirstElement;
 
             type FirstElementOG = <T>(xs: T[]) => T | undefined;
 
@@ -506,20 +527,24 @@
             </script>
             </code></pre>
           <p class="fragment">Note: the inverse is not true</p>
+          <aside class="notes">Deze versie is dus verbeterd in elk opzicht</aside>
         </section>
 
         <section>
-          <p>All good but... where's the parsing?</p>
+          <blockquote class="flex flex-column">
+            <p>All good but... where's the parsing?</p>
+            <p class="align-end">&mdash; You, maybe?</p>
+          </blockquote>
         </section>
 
         <section>
           <p>Validation vs. Parsing</p>
-          <p class="fragment">How is information preserved?</p>
+          <p>How is information preserved?</p>
         </section>
 
         <section>
-          <p>Consider the following pair of functions</p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-5|7-12">
+          <p>Consider the following pair of functions:</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-5|7-13">
             <script type="text/template">
             const validateNonEmpty = <T>(xs: T[]) : void => {
               if (xs.length === 0) {
@@ -535,19 +560,19 @@
             }
             </script>
             </code></pre>
-          <p class="fragment">The difference lies entirely in the return type</p>
+          <p class="fragment">The difference lies entirely in the return type.</p>
         </section>
 
         <section>
           <p>What is a parser?</p>
           <p class="fragment">less-structured input &#8594; more-structured output</p>
-          <p class="fragment">Which is an incredibly powerful tool</p>
+          <p class="fragment">Which is an incredibly powerful tool.</p>
         </section>
 
         <section>
           <p>
             They allow discharging checks on input up-front,<br />
-            at the boundary
+            at the edges of your program.
           </p>
           <p class="fragment">
             Once these checks have been passed,<br />
@@ -556,13 +581,8 @@
         </section>
 
         <section>
-          <p>Doing these checks up-front can prevent a whole class of bugs</p>
-          <p>Some of which might even be security vulnerabilities</p>
-        </section>
-
-        <section>
-          <p>One drawback:</p>
-          <p>there can be a lot of distance between parsing and processing code</p>
+          <p>This can prevent a whole class of bugs,</p>
+          <p>some of which might even be security vulnerabilities</p>
         </section>
 
         <section>
@@ -571,11 +591,25 @@
         </section>
 
         <section data-auto-animate>
-          <p>Ad-hoc validation leads to <em>shotgun parsing</em></p>
+          <p>
+            Ad-hoc validation leads to
+            <em
+              ><a href="http://langsec.org/papers/langsec-cwes-secdev2016.pdf"
+                >shotgun parsing</a
+              ></em
+            >
+          </p>
         </section>
 
         <section data-auto-animate>
-          <p>Ad-hoc validation leads to <em>shotgun parsing</em></p>
+          <p>
+            Ad-hoc validation leads to
+            <em
+              ><a href="http://langsec.org/papers/langsec-cwes-secdev2016.pdf"
+                >shotgun parsing</a
+              ></em
+            >
+          </p>
 
           <blockquote class="padded text-justify">
             Shotgun parsing is a programming antipattern whereby parsing and input-validating code
@@ -593,15 +627,14 @@
         </section>
 
         <section>
-          <p>How is this related to validation?</p>
-        </section>
-
-        <section>
-          <p>
-            If I just do all my validation up front, surely I will mitigate the risk of shotgun
-            parsing
-          </p>
-          <p class="fragment">Right?</p>
+          <blockquote class="flex flex-column">
+            <p>How is this related to validation?</p>
+            <p>
+              If I just do all my validation up front, surely I will mitigate the risk of shotgun
+              parsing...
+            </p>
+            <p class="align-end">&mdash; You, perhaps?</p>
+          </blockquote>
         </section>
 
         <section>
@@ -640,11 +673,11 @@
         </section>
 
         <section data-auto-animate>
-          <h3>How?</h3>
+          <p>How to apply?</p>
         </section>
 
         <section data-auto-animate>
-          <h3>How?</h3>
+          <p>How to apply?</p>
           <p class="r-fit-text">Focus on the datatypes</p>
         </section>
 
@@ -655,15 +688,17 @@
             type Bar = (pairs: [Date, number][]) => number;
             </script>
             </code></pre>
-          <p class="fragment">But you aren't sure what to do when encountering duplicate keys</p>
           <div class="fragment">
-            <p>So you create:</p>
-            <pre><code data-trim data-noescape class="language-typescript">
+            <p>But you aren't sure what to do when encountering duplicate keys</p>
+            <div>
+              <p>So you create:</p>
+              <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
             type CheckNoDuplicateKeys =
               <Key, Value>(pairs: [Key, Value][]) => void;
             </script>
             </code></pre>
+            </div>
           </div>
         </section>
 
@@ -680,26 +715,20 @@
 
         <section>
           <p>What would be a better solution?</p>
-          <p class="fragment">
-            Have the function accept a <code>Map&lt;Key, Value&gt;</code> instead
-          </p>
-          <pre class="fragment"><code data-trim data-noescape class="language-typescript">
+          <div class="fragment">
+            <p>Have the function instead accept a<br /><code>Map&lt;Key, Value&gt;</code></p>
+            <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
-            type Bar = (pairs: [Date, number][]) => number;
-
             type BetterBar = (pairs: Map<Date, number>) => number;
-            </script>
-            </code></pre>
-          <pre class="fragment"><code data-trim data-noescape class="language-typescript">
-            <script type="text/template">
+
             type CheckNoDuplicateKeys =
               <Key, Value>(pairs: [Key, Value][]) => Map<Key, Value>;
             </script>
             </code></pre>
+          </div>
           <aside class="notes">
-            Keep changing the type from Array to Map all the way up the call chain, eventually
-            you'll reach the location the value is created or you'll find a place where duplicates
-            actually ought to be allowed.
+            Verander naar Map up the call chain, voeg CheckNoDuplicateKeys toe op de locatie van
+            creatie
           </aside>
         </section>
 
@@ -709,16 +738,27 @@
         </section>
 
         <section>
-          <p>Two simple ideas highlighted</p>
-          <ol>
-            <li class="fragment">
-              Use a data structure that makes illegal states unrepresentable, use union types
-              judiciously
-            </li>
-            <li class="fragment">
-              Push the burden of proof upward as far as possible, but no further
-            </li>
-          </ol>
+          <section>
+            <p>Two simple ideas highlighted</p>
+            <ol>
+              <li class="fragment">
+                Use a data structure that makes illegal states unrepresentable, use
+                <strong>union types</strong>
+                judiciously
+              </li>
+              <li class="fragment">
+                Push the burden of proof upward as far as possible, but no further
+              </li>
+            </ol>
+          </section>
+          <section>
+            <p>
+              Union types allow one to express that a value can be "one of" several different types
+            </p>
+            <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            type Pet = 'Cat' | 'Dog' | 'Fish';
+            </code></pre>
+          </section>
         </section>
 
         <section>
@@ -732,18 +772,43 @@
             }
             </script>
             </code></pre>
-          <p class="fragment">But then, this is a legal value of that type</p>
-          <pre class="fragment"><code data-trim data-noescape class="language-typescript">
+          <div class="fragment"></div>
+        </section>
+
+        <section>
+          <p>Example values</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
+            <script type="text/template">
+            const cashPayment: Payment = {
+              cash: true,
+            };
+
+            const creditCardPayment: Payment = {
+              cash: false,
+              creditCard: '4111 1111 1111 1111',
+            };
+
+            const debitCardPayment: Payment = {
+              cash: false,
+              debitCard: '2223 5204 4356 0010',
+            };
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>But this is also a legal value of that type:</p>
+          <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
             const payment: Payment = {
               cash: true,
               creditCard: '4111 1111 1111 1111',
               debitCard: '2223 5204 4356 0010',
-            }
+            };
             </script>
             </code></pre>
+          <p>and is evidence of poor design.</p>
         </section>
-
         <section>
           <p>Can we do better?</p>
           <pre class="fragment"><code data-trim data-noescape class="language-typescript">
@@ -758,7 +823,7 @@
 
         <section>
           <section>
-            <p>Additional advice</p>
+            <p>Summarized advice</p>
             <ol>
               <li class="fragment">
                 Let your datatypes inform your code, don't let your code control your datatypes
@@ -786,15 +851,28 @@
             </ol>
           </section>
           <section>
-            <small>4</small> In typescript, this is harder to do considering it uses structural
-            typing.
+            <small>4</small> In typescript, this is harder to do since it has no opaque types.
+            <pre><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
+            type PositiveNumber =
+              { kind: 'positiveNumber', value: number };
+
+            declare const parsePositiveNumber =
+              (i: number) => PositiveNumber | undefined;
+            </script>
+            </code></pre>
           </section>
         </section>
 
         <section>
-          <p>Write total functions</p>
-          <p class="fragment">This advice isn't new</p>
-          <p class="fragment">And it isn't always easy to do</p>
+          <p>Closing note:</p>
+          <p>
+            Write <strong>total functions</strong>, i.e. every possible input value has a
+            corresponding output value.
+          </p>
+          <p class="fragment">This advice isn't new.</p>
+          <p class="fragment">It's conceptually simple, but it isn't always easy to do.</p>
+          <p class="fragment">The important part is to <strong>try</strong>.</p>
         </section>
 
         <section>
@@ -804,8 +882,11 @@
               <a href="https://www.parsonsmatt.org/2017/10/11/type_safety_back_and_forth.html"
                 >Type Safety Back and Forth</a
               >
+              (lightweight)
             </li>
-            <li><a href="https://kataskeue.com/gdp.pdf">Ghosts of Departed Proofs</a></li>
+            <li>
+              <a href="https://kataskeue.com/gdp.pdf">Ghosts of Departed Proofs</a> (academic)
+            </li>
           </ul>
         </section>
 
