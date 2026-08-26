@@ -122,7 +122,6 @@
 
         <section>
           <p>But...</p>
-          <!-- TODO: YC - get logos of languages to make the slides less dry -->
           <p class="fragment">Examples written in Haskell</p>
           <p class="fragment">Translated to Typescript</p>
         </section>
@@ -527,7 +526,7 @@
             </script>
             </code></pre>
           <p class="fragment">Note: the inverse is not true</p>
-          <aside class="notes">Deze versie is dus verbeterd in elk opzicht</aside>
+          <aside class="notes">Deze versie is dus beter in elk opzicht</aside>
         </section>
 
         <section>
@@ -567,6 +566,17 @@
           <p>What is a parser?</p>
           <p class="fragment">less-structured input &#8594; more-structured output</p>
           <p class="fragment">Which is an incredibly powerful tool.</p>
+        </section>
+
+        <section>
+          <p>Consider the following function:</p>
+          <pre><code data-trim data-noescape class="language-typescript code-padded">
+            <script type="text/template">
+            declare const parseInt = 
+              (x: string) => Number | undefined;
+            </script>
+            </code></pre>
+          <p>A parser is, by definition, something that can fail.</p>
         </section>
 
         <section>
@@ -772,7 +782,6 @@
             }
             </script>
             </code></pre>
-          <div class="fragment"></div>
         </section>
 
         <section>
@@ -870,7 +879,6 @@
             Write <strong>total functions</strong>, i.e. every possible input value has a
             corresponding output value.
           </p>
-          <p class="fragment">This advice isn't new.</p>
           <p class="fragment">It's conceptually simple, but it isn't always easy to do.</p>
           <p class="fragment">The important part is to <strong>try</strong>.</p>
         </section>
@@ -890,6 +898,14 @@
           </ul>
         </section>
 
+        <section>
+          <h3>Attributions:</h3>
+          <ul>
+            <li>
+              Haskell logo: Darrin A Thompson; Jeffrey Wheeler, Public domain, via Wikimedia Commons
+            </li>
+          </ul>
+        </section>
         <section><h3 class="r-fit-text">Thanks</h3></section>
       </div>
     </div>
