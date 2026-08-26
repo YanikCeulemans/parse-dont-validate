@@ -81,6 +81,17 @@
           opacity: 100;
         }
       }
+      .pulse {
+        animation: ease-in-out 1s alternate infinite pulse;
+      }
+      @keyframes pulse {
+        from {
+          scale: 95%;
+        }
+        to {
+          scale: 105%;
+        }
+      }
     </style>
   </head>
   <body>
@@ -100,15 +111,24 @@
         </section>
 
         <section>
-          <h3>About me</h3>
+          <p>But...</p>
+          <!-- TODO: YC - get logos of languages to make the slides less dry -->
+          <p class="fragment">Examples written in Haskell</p>
+          <p class="fragment">Translated to Typescript</p>
+        </section>
+
+        <section>
           <div class="flex flex-row gap">
             <div class="profile-picture"></div>
-            <ul>
-              <li>Backend: 2012 - 2015</li>
-              <li>Frontend: 2015 - 2021</li>
-              <li>Backend: 2021 - present</li>
-              <li>Passionate FP advocate</li>
-            </ul>
+            <div>
+              <h3>About me</h3>
+              <ul>
+                <li>Yanik Ceulemans</li>
+                <li>Start of carreer: 2012</li>
+                <li>Started at Euricom: 2015</li>
+                <li>Passionate FP advocate</li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -129,6 +149,7 @@
                 >You can actually</a
               >, but that involves throwing exceptions or infinite loops.
             </p>
+            <aside class="notes">Geen exceptions of infinite loops = gewenst, toch?</aside>
           </section>
         </section>
 
@@ -167,11 +188,26 @@
           </section>
 
           <section>
-            <p><small>2</small> if we add this typescript config setting</p>
+            <p>
+              <small>2</small> if we add this
+              <a href="https://www.typescriptlang.org/tsconfig/#noUncheckedIndexedAccess"
+                >typescript config setting</a
+              >
+            </p>
             <pre><span>tsconfig.json</span><code data-trim data-noescape class="r-fit-text code-padded">
               { "noUncheckedIndexedAccess": true }
             </code>
             </pre>
+            <aside class="notes">
+              <ul>
+                <li>Introduced in TS 4.1</li>
+                <li>Off by default, even with strict</li>
+                <li>
+                  If it were on by default, a lot of existing c-style code would result in
+                  compilation errors: e.g. for loops
+                </li>
+              </ul>
+            </aside>
           </section>
         </section>
 
@@ -199,10 +235,8 @@
 
         <section>
           <p>Weakened version</p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-9|1-3,8-9">
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-7|1,6-7">
             <script type="text/template">
-            type FirstElement = <T>(xs: T[]) => T | undefined;
-
             const firstElement: FirstElement = (xs) => {
               if (xs.length === 0) {
                 return undefined;
@@ -224,7 +258,7 @@
             The burden of checking <code>undefined</code><br />
             now falls on the caller
           </p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1|2-3|4-6|7|10-11|12-14|16">
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1|2-3|4-6|7|10-11|12-14">
             <script type="text/template">
             const getConfigurationDirectories = () : string[] => {
               const configDirsString = process.env.CONFIG_DIRS;
@@ -248,10 +282,10 @@
 
         <section>
           <p>This is pretty bad</p>
-          <ol>
-            <li class="fragment">It's just annoying</li>
-            <li class="fragment">Potential performance cost</li>
-            <li class="fragment">Worst of all, it's a bug waiting to happen</li>
+          <ol class="fragment">
+            <li>It's just annoying</li>
+            <li>Potential performance cost</li>
+            <li>Worst of all, it's a bug waiting to happen</li>
           </ol>
         </section>
 
@@ -334,6 +368,12 @@
             </script>
           </code></pre>
           </div>
+          <aside class="notes">
+            <a
+              href="https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-0.html#rest-elements-in-tuple-types"
+              >Rest elements in tuple types</a
+            >
+          </aside>
         </section>
 
         <section>
@@ -384,8 +424,8 @@
         <section>
           <p class="r-fit-text">The <code>undefined</code> is still there.</p>
           <div class="fragment">
-            <p>But it is handled earlier in the program.</p>
-            <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="8-10">
+            <p>But it is handled in a single location in the program.</p>
+            <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="5-10">
             <script type="text/template">
             const getConfigurationDirectories = 
               () : NonEmptyArray<string> => {
@@ -402,8 +442,8 @@
 
             </script>
             </code></pre>
+            <p class="r-fit-text">Right alongside the input validation.</p>
           </div>
-          <p class="fragment r-fit-text">Right alongside the input validation.</p>
         </section>
 
         <section>
@@ -425,8 +465,10 @@
 
             </script>
             </code></pre>
-          <p class="fragment">embeds the proof that the array is not empty</p>
-          <h4 class="fragment custom point">in the type system</h4>
+          <div class="fragment">
+            <p>embeds the proof that the array is not empty in the</p>
+            <h3 class="pulse">type system</h3>
+          </div>
         </section>
 
         <section>
@@ -584,6 +626,7 @@
                 >
               </p>
             </div>
+            <aside class="notes">Lead C# architect: Anders Hejlsberg</aside>
           </section>
         </section>
 
@@ -730,6 +773,16 @@
               <li class="fragment">
                 Use abstract datatypes to make validators "look like" parsers <small>4</small>
               </li>
+              <aside class="notes">
+                <p>
+                  3. bv. programmeertalen: text &#8594; geldige syntax &#8594; geldige volgorde
+                  syntax
+                </p>
+                <p>
+                  5. abstract datatypes: e.g. a number within a range &#8594; wrap number and make
+                  smart constructor
+                </p>
+              </aside>
             </ol>
           </section>
           <section>
