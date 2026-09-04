@@ -754,7 +754,7 @@
               <li class="fragment">
                 Use a data structure that makes illegal states unrepresentable, use
                 <strong>union types</strong>
-                judiciously
+                liberally
               </li>
               <li class="fragment">
                 Push the burden of proof upward as far as possible, but no further
@@ -766,6 +766,26 @@
               Union types allow one to express that a value can be "one of" several different types
             </p>
             <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            type Pet = 'Cat' | 'Dog' | 'Fish';
+            </code></pre>
+          </section>
+          <section>
+            <p>C# 15 version</p>
+            <pre><code data-trim data-noescape class="language-csharp">
+            public record Cat();
+            public record Dog();
+            public record Fish();
+            public union Pet(Cat, Dog, Fish);
+            </code></pre>
+          </section>
+          <section>
+            <p>Haskell version</p>
+            <pre><code data-trim data-noescape class="language-haskell r-fit-text code-padded">
+            data Pet = Cat | Dog | Fish 
+            </code></pre>
+            <pre
+              class="fragment"
+            ><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             type Pet = 'Cat' | 'Dog' | 'Fish';
             </code></pre>
           </section>
@@ -860,14 +880,49 @@
             </ol>
           </section>
           <section>
-            <small>4</small> In typescript, this is harder to do since it has no opaque types.
+            <p><small>4</small> a.k.a. avoiding <strong>primitive obsession</strong>.</p>
+            <p>In typescript, this is harder to do since it has no opaque types.</p>
             <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
-            type PositiveNumber =
+            type NaturalNumber =
               { kind: 'positiveNumber', value: number };
 
-            declare const parsePositiveNumber =
-              (i: number) => PositiveNumber | undefined;
+            declare const parseNaturalNumber =
+              (i: number) => NaturalNumber | undefined;
+
+            // should not be possible, but it is
+            const possible = { kind: 'positiveNumber', value: -1 };
+            </script>
+            </code></pre>
+          </section>
+          <section>
+            <p>C# version</p>
+            <pre><code data-trim data-noescape class="language-csharp">
+            <script type="text/template">
+            public record struct NaturalNumber
+            {
+                public uint Value { get; }
+
+                private NaturalNumber(uint value)
+                {
+                    Value = value;
+                }
+
+                public static NaturalNumber? Create(uint value) =>
+                    value == 0 ? value : null;
+            }
+            </script>
+            </code></pre>
+          </section>
+          <section>
+            <p>Haskell version</p>
+            <pre><code data-trim data-noescape class="language-haskell">
+            <script type="text/template">
+            newtype NaturalNumber = MakeNaturalNumber Int
+
+            create :: Int -> Maybe NaturalNumber
+            create n | n < 1     = Nothing
+                     | otherwise = Just (MakeNaturalNumber n)
             </script>
             </code></pre>
           </section>
