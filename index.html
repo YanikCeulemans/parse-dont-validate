@@ -123,7 +123,7 @@
         <section>
           <p>But...</p>
           <p class="fragment">Examples written in Haskell</p>
-          <p class="fragment">Translated to Typescript</p>
+          <p class="fragment">Translated to Typescript and some to C#</p>
         </section>
 
         <section>
@@ -348,7 +348,11 @@
             </script>
             </code></pre>
           </div>
-          <p class="fragment">We just got the "should never happen" error thrown</p>
+        </section>
+
+        <section>
+          <img src="/images/shouldneverhappen.jpg" />
+          <img class="fragment" src="/images/clown.png" />
         </section>
 
         <section>
@@ -743,21 +747,21 @@
         </section>
 
         <section>
-          <p>Now the check cannot be omitted</p>
-          <p>Its result is needed for the program to proceed</p>
+          <p>Now the check cannot be omitted.</p>
+          <p>Its result is needed for the program to proceed.</p>
         </section>
 
         <section>
           <section>
-            <p>Two simple ideas highlighted</p>
+            <p>Two simple ideas highlighted:</p>
             <ol>
               <li class="fragment">
                 Use a data structure that makes illegal states unrepresentable, use
                 <strong>union types</strong>
-                liberally
+                sensibly.
               </li>
               <li class="fragment">
-                Push the burden of proof upward as far as possible, but no further
+                Push the burden of proof upward as far as possible, but no further.
               </li>
             </ol>
           </section>
@@ -783,11 +787,12 @@
             <pre><code data-trim data-noescape class="language-haskell r-fit-text code-padded">
             data Pet = Cat | Dog | Fish 
             </code></pre>
-            <pre
-              class="fragment"
-            ><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            <div class="fragment">
+              <p>Typescript version</p>
+              <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             type Pet = 'Cat' | 'Dog' | 'Fish';
             </code></pre>
+            </div>
           </section>
         </section>
 
@@ -872,6 +877,7 @@
                   3. bv. programmeertalen: text &#8594; geldige syntax &#8594; geldige volgorde
                   syntax
                 </p>
+                <p>4. Trivial illegal state = data out of sync</p>
                 <p>
                   5. abstract datatypes: e.g. a number within a range &#8594; wrap number and make
                   smart constructor
@@ -881,17 +887,20 @@
           </section>
           <section>
             <p><small>4</small> a.k.a. avoiding <strong>primitive obsession</strong>.</p>
-            <p>In typescript, this is harder to do since it has no opaque types.</p>
+            <p>
+              In typescript, this is harder to do since it has no opaque types (<a
+                href="https://github.com/microsoft/TypeScript/issues/202"
+                >yet</a
+              >).
+            </p>
             <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
-            type NaturalNumber =
-              { kind: 'positiveNumber', value: number };
+            declare const tag: unique symbol;
 
-            declare const parseNaturalNumber =
-              (i: number) => NaturalNumber | undefined;
+            export type Natural = number & { readonly [tag]: 'Natural' }
 
-            // should not be possible, but it is
-            const possible = { kind: 'positiveNumber', value: -1 };
+            export const parse = (n: number): Natural | undefined =>
+              n < 1 ? undefined : n as Natural;
             </script>
             </code></pre>
           </section>
@@ -908,7 +917,7 @@
                     Value = value;
                 }
 
-                public static NaturalNumber? Create(uint value) =>
+                public static NaturalNumber? Parse(uint value) =>
                     value == 0 ? value : null;
             }
             </script>
@@ -918,11 +927,13 @@
             <p>Haskell version</p>
             <pre><code data-trim data-noescape class="language-haskell">
             <script type="text/template">
+            module NaturalNumber (NaturalNumber, parse) where
+
             newtype NaturalNumber = MakeNaturalNumber Int
 
-            create :: Int -> Maybe NaturalNumber
-            create n | n < 1     = Nothing
-                     | otherwise = Just (MakeNaturalNumber n)
+            parse :: Int -> Maybe NaturalNumber
+            parse n | n < 1     = Nothing
+                    | otherwise = Just (MakeNaturalNumber n)
             </script>
             </code></pre>
           </section>
