@@ -218,6 +218,15 @@
               </ul>
             </aside>
           </section>
+          <section>
+            <pre><code data-trim data-noescape class="language-typescript">
+              const items: string[] = ["Hello", "world"];
+              for (let i = 0; i < items.length; i++) {
+                console.log(items[i].length);
+              }
+            </code></pre>
+            <img src="/images/no_unchecked_indexed_access.jpg" />
+          </section>
         </section>
 
         <section>
@@ -372,11 +381,17 @@
             What if, instead of weakening the guarantee on the return type, we
             <strong><em>strengthen</em></strong> the type of the argument
           </p>
-          <div class="fragment">
-            <pre><code data-trim data-noescape class="language-typescript">
+          <pre
+            class="fragment"
+          ><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             <script type="text/template">
             type NonEmptyArray<T> = [T, ...T[]];
-
+            </script>
+          </code></pre>
+          <div class="fragment">
+            <p>Used as such:</p>
+            <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            <script type="text/template">
             type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
             </script>
           </code></pre>
