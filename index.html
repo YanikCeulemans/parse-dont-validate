@@ -173,7 +173,7 @@
           <p>What about this type?</p>
           <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             <script type="text/template">
-            type FirstElement = <T>(xs: T[]) => T;
+            type First = <T>(xs: T[]) => T;
             </script>
           </code></pre>
         </section>
@@ -182,9 +182,9 @@
           <p>Let's try</p>
           <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
             <script type="text/template">
-            type FirstElement = <T>(xs: T[]) => T;
+            type First = <T>(xs: T[]) => T;
 
-            const firstElement: FirstElement = (xs) => {
+            const first: First = (xs) => {
               return xs[0];
             }
             </script>
@@ -195,11 +195,10 @@
           <section>
             <p>Turns out we can't <small>2</small></p>
             <pre><code data-trim data-noescape class="nohighlight typescript-error r-fit-text"><script type="text/template">
-    Type '<T>(xs: T[]) => T | undefined' is not assignable to type 'FirstElement'.
+    Type '<T>(xs: T[]) => T | undefined' is not assignable to type 'First'.
               </script></code></pre>
             <pre><code data-trim data-noescape class="nohighlight typescript-error r-fit-text"><script type="text/template">
     Type 'T | undefined' is not assignable to type 'T'.
-      'T' could be instantiated with an arbitrary type which could be unrelated to 'T | undefined'.
             </script></code></pre>
           </section>
 
@@ -236,10 +235,8 @@
               </script>
             </code></pre>
             <div>
-              <strong>Errors in code</strong>
-              <p>
-                <pre><code class="code-padded typescript-error nohighlight">Object is possibly 'undefined'.</code></pre>
-              </p>
+              <p><strong>Errors in code</strong></p>
+              <pre><code class="code-padded typescript-error nohighlight">Object is possibly 'undefined'.</code></pre>
             </div>
           </section>
         </section>
@@ -252,7 +249,7 @@
               data-fragment-index="0"
             ><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             <script type="text/template">
-            type FirstElement = <T>(xs: T[]) => T            ;
+            type First = <T>(xs: T[]) => T            ;
             </script>
           </code></pre>
             <pre
@@ -260,7 +257,7 @@
               data-fragment-index="0"
             ><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             <script type="text/template">
-            type FirstElement = <T>(xs: T[]) => T | undefined;
+            type First = <T>(xs: T[]) => T | undefined;
             </script>
           </code></pre>
           </div>
@@ -270,7 +267,7 @@
           <p>Weakened version</p>
           <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1-7|1,6-7">
             <script type="text/template">
-            const firstElement: FirstElement = (xs) => {
+            const first: First = (xs) => {
               if (xs.length === 0) {
                 return undefined;
               }
@@ -303,7 +300,7 @@
             }
 
             const configDirs = getConfigurationDirectories();
-            const cacheDir = firstElement(configDirs);
+            const cacheDir = first(configDirs);
             if (cacheDir === undefined) {
               throw new Error('should never happen; already checked');
             }
@@ -340,7 +337,7 @@
             }
 
             const configDirs = getConfigurationDirectories();
-            const cacheDir = firstElement(configDirs);
+            const cacheDir = first(configDirs);
             if (cacheDir === undefined) {
               throw new Error('should never happen; already checked');
             }
@@ -363,7 +360,7 @@
             }
 
             const configDirs = getConfigurationDirectories();
-            const cacheDir = firstElement(configDirs);
+            const cacheDir = first(configDirs);
             if (cacheDir === undefined) {
               throw new Error('should never happen; already checked');
             }
@@ -385,7 +382,7 @@
             <p>Here's the original type signature again:</p>
             <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             <script type="text/template">
-            type FirstElement = <T>(xs: T[]) => T;
+            type First = <T>(xs: T[]) => T;
             </script>
           </code></pre>
           </div>
@@ -396,18 +393,28 @@
             What if, instead of weakening the guarantee on the return type, we
             <strong><em>strengthen</em></strong> the type of the argument
           </p>
-          <pre
-            class="fragment"
-          ><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+          <div class="fragment">
+            <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            <script type="text/template">
+            type NonEmptyArray<T> = { first: T, rest: T[] }
+            </script>
+          </code></pre>
+            <p>or if you will:</p>
+            <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
             <script type="text/template">
             type NonEmptyArray<T> = [T, ...T[]];
             </script>
           </code></pre>
-          <div class="fragment">
-            <p>Used as such:</p>
-            <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+            <p>or in C#</p>
+            <pre><code data-trim data-noescape class="language-csharp r-fit-text code-padded">
             <script type="text/template">
-            type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
+            public sealed record NonEmptyArray<T>(T First, T[] Rest);
+            </script>
+          </code></pre>
+            <p>or in Haskell</p>
+            <pre><code data-trim data-noescape class="language-haskell r-fit-text code-padded">
+            <script type="text/template">
+            data NonEmptyArray a = MakeNonEmptyArray (a, [a])
             </script>
           </code></pre>
           </div>
@@ -420,6 +427,15 @@
         </section>
 
         <section>
+          <p>Used as such:</p>
+          <pre><code data-trim data-noescape class="language-typescript r-fit-text code-padded">
+          <script type="text/template">
+          type First = <T>(xs: NonEmptyArray<T>) => T;
+          </script>
+          </code></pre>
+        </section>
+
+        <section>
           <p>
             Then the original naive version of the code<br />
             works just fine, no compile errors.
@@ -428,9 +444,9 @@
             <script type="text/template">
             type NonEmptyArray<T> = [T, ...T[]];
 
-            type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
+            type First = <T>(xs: NonEmptyArray<T>) => T;
 
-            const firstElement: FirstElement = (xs) => {
+            const first: First = (xs) => {
               return xs[0];
             }
             </script>
@@ -458,7 +474,7 @@
               }
 
             const configDirs = getConfigurationDirectories();
-            const cacheDir = firstElement(configDirs);
+            const cacheDir = first(configDirs);
             intializeCache(cacheDir);
             </script>
             </code></pre>
@@ -539,23 +555,20 @@
         </section>
 
         <section>
-          <p>
-            We can even recover the original behavior of <code>firstElement</code> through
-            composition
-          </p>
+          <p>We can even recover the original behavior of <code>first</code> through composition</p>
           <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="1|3|6|7-9|11">
             <script type="text/template">
-            type FirstElement = <T>(xs: NonEmptyArray<T>) => T;
+            type First = <T>(xs: NonEmptyArray<T>) => T;
 
-            type FirstElementOG = <T>(xs: T[]) => T | undefined;
+            type FirstOG = <T>(xs: T[]) => T | undefined;
 
-            const firstElementOG: FirstElementOG = (xs) => {
+            const firstOG: FirstOG = (xs) => {
               const nonEmptyXs = createNonEmptyArray(xs);
               if (nonEmptyXs === undefined) {
                 return undefined;
               }
 
-              return firstElement(nonEmptyXs);
+              return first(nonEmptyXs);
             }
             </script>
             </code></pre>
@@ -1009,15 +1022,14 @@
         return [parent, ...parents(parent)].filter(Boolean);
       };
 
-      const intercalate = (xs, y) => 
-        xs.reduce((acc, curr) => [...acc, y, curr], []).slice(1);
+      const intercalate = (xs, y) => xs.reduce((acc, curr) => [...acc, y, curr], []).slice(1);
 
       const span = (content, f) => {
         const el = document.createElement('span');
         el.innerText = content;
         f(el);
         return el;
-      }
+      };
       // More info about initialization & config:
       // - https://revealjs.com/initialization/
       // - https://revealjs.com/config/
@@ -1027,19 +1039,26 @@
         // Learn about plugins: https://revealjs.com/plugins/
         plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
         highlight: {
-          beforeHighlight: hljs => {
+          beforeHighlight: (hljs) => {
             hljs.addPlugin({
               'after:highlightElement': (x) => {
                 const squiggle = parents(x.el)
-                  .map(el => el.dataset.squiggle)
+                  .map((el) => el.dataset.squiggle)
                   .find(Boolean);
                 if (!squiggle) return;
 
-                var squiggleNodes = [...x.el.childNodes].filter(node => node.textContent?.includes(squiggle));
+                var squiggleNodes = [...x.el.childNodes].filter((node) =>
+                  node.textContent?.includes(squiggle)
+                );
 
                 for (node of squiggleNodes) {
                   const splitText = node.textContent.split(squiggle);
-                  node.replaceWith(...intercalate(splitText, span(squiggle, x => x.classList.add('red-squiggle'))))
+                  node.replaceWith(
+                    ...intercalate(
+                      splitText,
+                      span(squiggle, (x) => x.classList.add('red-squiggle'))
+                    )
+                  );
                 }
               },
             });
