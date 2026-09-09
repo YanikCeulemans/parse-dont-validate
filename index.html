@@ -68,6 +68,13 @@
       .reveal blockquote.padded {
         padding: 20px 25px;
       }
+      .reveal pre code .red-squiggle {
+        text-decoration-style: wavy;
+        text-decoration-skip-ink: none;
+        text-decoration-thickness: 2px;
+        text-decoration-color: red;
+        text-decoration-line: underline;
+      }
       .text-justify {
         text-align: justify;
       }
@@ -220,12 +227,20 @@
           </section>
           <section>
             <pre><code data-trim data-noescape class="language-typescript">
+            <script type="text/template">
               const items: string[] = ["Hello", "world"];
+
               for (let i = 0; i < items.length; i++) {
                 console.log(items[i].length);
               }
+              </script>
             </code></pre>
-            <img src="/images/no_unchecked_indexed_access.jpg" />
+            <div>
+              <strong>Errors in code</strong>
+              <p>
+                <pre><code class="code-padded typescript-error nohighlight">Object is possibly 'undefined'.</code></pre>
+              </p>
+            </div>
           </section>
         </section>
 
@@ -996,6 +1011,16 @@
 
         // Learn about plugins: https://revealjs.com/plugins/
         plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+        highlight: {
+    beforeHighlight: hljs => {
+      hljs.addPlugin({
+    // TODO: YC - imperatively set squiggles, class: .red-squiggle
+        'after:highlightElement': (x) => {
+            console.log({ x });
+          },
+      });
+    },
+        },
       });
     </script>
   </body>
