@@ -226,7 +226,7 @@
             </aside>
           </section>
           <section>
-            <pre><code data-trim data-noescape class="language-typescript">
+            <pre data-squiggle="items[i]"><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
               const items: string[] = ["Hello", "world"];
 
@@ -1003,6 +1003,21 @@
     <script src="dist/plugin/markdown.js"></script>
     <script src="dist/plugin/highlight.js"></script>
     <script>
+      const parents = (el) => {
+        if (!el) return [];
+        const parent = el.parentElement;
+        return [parent, ...parents(parent)].filter(Boolean);
+      };
+
+      const intercalate = (xs, y) => 
+        xs.reduce((acc, curr) => [...acc, y, curr], []).slice(1);
+
+      const span = (content, f) => {
+        const el = document.createElement('span');
+        el.innerText = content;
+        f(el);
+        return el;
+      }
       // More info about initialization & config:
       // - https://revealjs.com/initialization/
       // - https://revealjs.com/config/
@@ -1012,14 +1027,23 @@
         // Learn about plugins: https://revealjs.com/plugins/
         plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
         highlight: {
-    beforeHighlight: hljs => {
-      hljs.addPlugin({
-    // TODO: YC - imperatively set squiggles, class: .red-squiggle
-        'after:highlightElement': (x) => {
-            console.log({ x });
+          beforeHighlight: hljs => {
+            hljs.addPlugin({
+              'after:highlightElement': (x) => {
+                const squiggle = parents(x.el)
+                  .map(el => el.dataset.squiggle)
+                  .find(Boolean);
+                if (!squiggle) return;
+
+                var squiggleNodes = [...x.el.childNodes].filter(node => node.textContent?.includes(squiggle));
+
+                for (node of squiggleNodes) {
+                  const splitText = node.textContent.split(squiggle);
+                  node.replaceWith(...intercalate(splitText, span(squiggle, x => x.classList.add('red-squiggle'))))
+                }
+              },
+            });
           },
-      });
-    },
         },
       });
     </script>
