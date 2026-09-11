@@ -419,7 +419,7 @@
             <p>or in Haskell</p>
             <pre><code data-trim data-noescape class="language-haskell r-fit-text code-padded">
             <script type="text/template">
-            data NonEmptyArray a = MakeNonEmptyArray (a, [a])
+            newtype NonEmptyArray a = MakeNonEmptyArray (a, [a])
             </script>
           </code></pre>
           </div>
@@ -454,6 +454,33 @@
             const first: First = (xs) => {
               return xs[0];
             }
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>Or the record version:</p>
+          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
+            <script type="text/template">
+            type NonEmptyArray<T> = { first: T, rest: T[] };
+
+            type First = <T>(xs: NonEmptyArray<T>) => T;
+
+            const first: First = (xs) => {
+              return xs.first;
+            }
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>Or the Haskell version:</p>
+          <pre><code data-trim data-noescape class="language-haskell" data-line-numbers>
+            <script type="text/template">
+            newtype NonEmptyArray a = MakeNonEmptyArray (a, [a])
+
+            first :: NonEmptyArray a -> a
+            first (MakeNonEmptyArray (a, _)) = a
             </script>
             </code></pre>
         </section>
@@ -511,8 +538,9 @@
         </section>
 
         <section>
-          <p>The fact that we return a <code>NonEmptyArray&lt;string&gt;</code></p>
-          <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="2">
+          <section>
+            <p>The fact that we return a <code>NonEmptyArray&lt;string&gt;</code></p>
+            <pre><code data-trim data-noescape class="language-typescript" data-line-numbers="2">
             <script type="text/template">
             const getConfigurationDirectories = 
               () : NonEmptyArray<string> => {
@@ -529,10 +557,18 @@
 
             </script>
             </code></pre>
-          <div class="fragment">
-            <p>embeds the proof that the array is not empty in the</p>
-            <h3 class="pulse">type system</h3>
-          </div>
+            <div class="fragment">
+              <p>embeds the proof that the array is not empty in the</p>
+              <h3 class="pulse">type system</h3>
+            </div>
+          </section>
+          <section>
+            <blockquote>
+              "A type system moves errors from runtime to compile time. That's not just faster
+              feedback, it's guaranteed feedback. A runtime error only shows up if you happen to hit
+              that code path; a compile-time error you can't ship without fixing."
+            </blockquote>
+          </section>
         </section>
 
         <section>
