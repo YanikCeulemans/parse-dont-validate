@@ -881,10 +881,11 @@
         </section>
 
         <section>
+          <p>Example:</p>
           <p>Payment methods</p>
           <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
-            type Payment = {
+            type PaymentMethod = {
               cash: boolean;
               creditCard?: string;
               debitCard?: string;
@@ -897,16 +898,16 @@
           <p>Example values</p>
           <pre><code data-trim data-noescape class="language-typescript" data-line-numbers>
             <script type="text/template">
-            const cashPayment: Payment = {
-              cash: true,
+            const cashPaymentMethod: PaymentMethod = {
+              cash: true
             };
 
-            const creditCardPayment: Payment = {
+            const creditCardPaymentMethod: PaymentMethod = {
               cash: false,
               creditCard: '4111 1111 1111 1111',
             };
 
-            const debitCardPayment: Payment = {
+            const debitCardPaymentMethod: PaymentMethod = {
               cash: false,
               debitCard: '2223 5204 4356 0010',
             };
@@ -918,7 +919,7 @@
           <p>But this is also a legal value of that type:</p>
           <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
-            const payment: Payment = {
+            const paymentMethod: PaymentMethod = {
               cash: true,
               creditCard: '4111 1111 1111 1111',
               debitCard: '2223 5204 4356 0010',
@@ -929,12 +930,38 @@
         </section>
         <section>
           <p>Can we do better?</p>
-          <pre class="fragment"><code data-trim data-noescape class="language-typescript">
+          <pre
+            class="fragment"
+          ><code data-trim data-noescape data-line-numbers class="language-typescript">
             <script type="text/template">
-            type Payment =
-              | { kind: 'cash' }
-              | { kind: 'creditCard', creditCardNumber: string }
-              | { kind: 'debitCard', debitCardNumber: string }
+            type Cash = { kind: 'cash' };
+
+            type CreditCard = {
+              kind: 'creditCard',
+              creditCardNumber: string
+            };
+
+            type DebitCard = {
+              kind: 'debitCard',
+              debitCardNumber: string
+            };
+
+            type PaymentMethod = Cash | CreditCard | DebitCard;
+            </script>
+            </code></pre>
+        </section>
+
+        <section>
+          <p>With helper functions:</p>
+          <pre><code data-trim data-noescape data-line-numbers class="language-typescript">
+            <script type="text/template">
+            declare const cash = () => PaymentMethod;
+
+            declare const parseCreditCard = 
+              (candidate: string) => PaymentMethod | undefined;
+
+            declare const parseDebitCard = 
+              (candidate: string) => PaymentMethod | undefined;
             </script>
             </code></pre>
         </section>
@@ -992,7 +1019,7 @@
             <p>C# version</p>
             <pre><code data-trim data-noescape class="language-csharp">
             <script type="text/template">
-            public record struct NaturalNumber
+            public record NaturalNumber
             {
                 public uint Value { get; }
 
