@@ -748,6 +748,13 @@
           </section>
           <section>
             <p><small>3</small> Java has checked exceptions which are actually tracked</p>
+            <pre class="fragment"><code data-trim data-noescape class="language-java">
+            <script type="text/template">
+              public void someMethod throws Exception {
+                // Implementation
+              }
+            </script>
+            </code></pre>
             <div class="fragment">
               <p>Opinions are plentiful and divided</p>
               <p>
@@ -955,13 +962,13 @@
           <p>With helper functions:</p>
           <pre><code data-trim data-noescape data-line-numbers class="language-typescript">
             <script type="text/template">
-            declare const cash = () => PaymentMethod;
+            declare const cash = () => Cash;
 
             declare const parseCreditCard = 
-              (candidate: string) => PaymentMethod | undefined;
+              (candidate: string) => CreditCard | undefined;
 
             declare const parseDebitCard = 
-              (candidate: string) => PaymentMethod | undefined;
+              (candidate: string) => DebitCard | undefined;
             </script>
             </code></pre>
         </section>
@@ -1004,6 +1011,12 @@
                 >yet</a
               >).
             </p>
+          </section>
+          <section>
+            <p>
+              Let's say we want to make a type <code>Natural</code>, that can only contain numbers
+              larger than <code>0</code>
+            </p>
             <pre><code data-trim data-noescape class="language-typescript">
             <script type="text/template">
             declare const tag: unique symbol;
@@ -1011,7 +1024,7 @@
             export type Natural = number & { readonly [tag]: 'Natural' }
 
             export const parse = (n: number): Natural | undefined =>
-              n < 1 ? undefined : n as Natural;
+              n > 0 ? n as Natural : undefined;
             </script>
             </code></pre>
           </section>
@@ -1019,17 +1032,17 @@
             <p>C# version</p>
             <pre><code data-trim data-noescape class="language-csharp">
             <script type="text/template">
-            public record NaturalNumber
+            public record Natural
             {
                 public uint Value { get; }
 
-                private NaturalNumber(uint value)
+                private Natural(uint value)
                 {
                     Value = value;
                 }
 
-                public static NaturalNumber? Parse(uint value) =>
-                    value == 0 ? value : null;
+                public static Natural? Parse(uint value) =>
+                  value > 0 ? new(value) : null;
             }
             </script>
             </code></pre>
@@ -1038,13 +1051,13 @@
             <p>Haskell version</p>
             <pre><code data-trim data-noescape class="language-haskell">
             <script type="text/template">
-            module NaturalNumber (NaturalNumber, parse) where
+            module Natural (Natural, parse) where
 
-            newtype NaturalNumber = MakeNaturalNumber Int
+            newtype Natural = MakeNatural Int
 
-            parse :: Int -> Maybe NaturalNumber
-            parse n | n < 1     = Nothing
-                    | otherwise = Just (MakeNaturalNumber n)
+            parse :: Int -> Maybe Natural
+            parse n | n > 0     = Just (MakeNatural n)
+                    | otherwise = Nothing
             </script>
             </code></pre>
           </section>
